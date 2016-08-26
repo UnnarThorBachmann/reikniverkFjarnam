@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<head lang="en">
+  <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+  <title>Fjarnám</title>
+  <!-- Bootstrap 3 -->
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+  <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+  <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+  <style>
+    .container {
+      margin-top: 1%;
+      margin-right: 3%;
+      margin-left: 3%;
+      margin-bottom: 5%;
+    }
+    .form-control {
+      width: 100%;
+    }
+    .form-group {
+      margin-left: 10px;
+    }
+    .thumbnail {
+      width: 100%;
+      background-color: rgba(0,0,255,0.1);
+      margin-right: 10px;
+    }
+    .containerThumbs{
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .left {
+      display: inline-block;
+      width: 50%;
+    }
+    .right {
+      float: right;
+      display: inline-block;
+      width: 30%;
+    }
+    input {
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="container left">
+  <h1>
+    Reikniverk fjarnáms
+  </h1>
+  <form id="afangar">
+  	<div class="form-group">
+        <label class="medium" for="golf">Aldur</span></label>
+        <select class="form-control" id="golf">
+          <option>30 ára-</option>
+          <option>30-37 ára</option>
+          <option>38-54 ára</option>
+          <option>55-59 ára</option>
+          <option>60 ára+</option>
+        </select>
+    </div>
+    <div class="form-group">
+      <label>Yfirvinna úr A-hluta (klst)</label>
+      <input type="text" class="form-control" value = "0" id="a">
+    </div>
+    <div class="form-group">
+      <label> Vinna í C-hluta (klst)</label>
+      <input type="text" class="form-control" value="0" id="c">
+    </div>
+  </form>
+      <div class="containerThumbs" id="ct">
+      <div class="thumbnail">
+      	<form class="form-inline">
+        <div class="form-group">
+          <label>Fjöldi</label>
+          <input type="text" class="form-control nemendafjoldi" value="0" id="n1">
+        </div>
+        <div class="form-group">
+          <label>Einingar</label>
+          <input type="text" class="form-control einingar" value="3" id="e1">
+        </div>
+        </form>
+      </div>
+      </div>
+  <form>
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary btn-lg btn-block large" id="calculate">Reikna vinnumat</button>
+        <button type="button" class="btn btn-primary btn-lg btn-block large" id="add">Bæta við fjarnámshópi</button>
+        </div>
+  </form>
+</div>
+<div class="container right">
+<h1>Niðurstöður</h1>
+<ul class="list-group" id="nidurstodur">
+</ul>
+</div>
+<script>
+  var vinnuskylda =  function(c) {
+   var golf = 0;
+   if (document.getElementById('golf').value === '30 ára-' ) {
+      golf = 720;
+   }
+   else if (document.getElementById('golf').value === '30-37 ára') {
+     golf = 708;
+   }
+   else if (document.getElementById('golf').value === '38-54 ára') {
+    golf = 696;
+   }
+   else if (document.getElementById('golf').value === '55-59 ára') {
+    golf = 667;
+   }
+   else {
+    golf = 551;
+   }
+   return golf;
+  };
+  var afangar = 1;
+  self = this;
+  var button2 = document.getElementById('calculate');
+  button2.addEventListener('click',function() {
+  	$("#nidurstodur").empty();
+    var c = parseFloat(document.getElementById('c').value);
+  	var a = parseFloat(document.getElementById('a').value);
+  	var vinnuskylda = self.vinnuskylda(document.getElementById('golf').value);
+    var skuld = a-vinnuskylda + c;
+
+    var svar = "<li class='list-group-item'>Vinnuskylda (klst): " + vinnuskylda.toString() + "</li>";
+    $("#nidurstodur").append(svar);
+    svar = "<li class='list-group-item'>Uppgjör dagskóla (klst): " + skuld.toString() + "</li>";
+    $("#nidurstodur").append(svar);
+    var samtala = 0;
+    for (var i = 1; i <= afangar; i++) {
+      var fjoldi = parseFloat(document.getElementById("n" + i.toString()).value);
+      var einingar = parseFloat(document.getElementById("e" + i.toString()).value);
+      var kennslustundir = parseFloat(1) + ((2*einingar)-1)*fjoldi/parseFloat(39);
+      var klukkustundir = kennslustundir*1.8*18;
+
+      if (skuld  + klukkustundir <= 0) {
+        console.log(klukkustundir);
+        skuld = skuld + klukkustundir;
+        samtala = skuld;
+        samtala = samtala.toFixed(1);
+        klukkustundir = klukkustundir.toFixed(1);
+
+        var svar = "<li class='list-group-item'>Vinnumat: " + klukkustundir.toString() + " (staða: "+ samtala.toString() +")</li>";
+        $("#nidurstodur").append(svar);
+      }
+      else {
+      	klukkustundir = klukkustundir + skuld;
+        klukkustundir = 1.3*klukkustundir/1.8; 
+        samtala = klukkustundir.toFixed(1);
+        klukkustundir =  klukkustundir + Math.abs(skuld);
+        //samtala = (samtala < 0) ? samtala = 0: samtala = samtala + klukkustundir;
+        klukkustundir = klukkustundir.toFixed(1);
+        skuld = 0;
+        var svar = "<li class='list-group-item'>Vinnumat: " + klukkustundir.toString() + " (staða: "+ samtala.toString() +")</li>";
+        $("#nidurstodur").append(svar);
+      }
+      
+    }
+  },self);
+  var button1 = document.getElementById('add');
+  button1.addEventListener('click',function() {
+  	afangar += 1;
+    var nyrAfangi = "<div class='thumbnail'><form class='form-inline'><div class='form-group'><label>Fjöldi</label><input type='text' class='form-control nemendafjoldi' value='0' id=";
+    nyrAfangi += "n" + afangar.toString();
+    nyrAfangi += "></div><div class='form-group'><label>Einingar</label><input type='text' class='form-control einingar' value='3' id="
+    nyrAfangi += "e" + afangar.toString();
+    nyrAfangi += "></div></form></div>";
+    $("#ct").append(nyrAfangi);
+
+	});
+</script>
+</body>
+
