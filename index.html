@@ -89,10 +89,8 @@
         </div>
   </form>
 </div>
-<div class="container right">
-<h1>Niðurstöður</h1>
-<ul class="list-group" id="nidurstodur">
-</ul>
+<div class="container right" id ="cr">
+
 </div>
 <script>
   var vinnuskylda =  function(c) {
@@ -118,7 +116,11 @@
   self = this;
   var button2 = document.getElementById('calculate');
   button2.addEventListener('click',function() {
-  	$("#nidurstodur").empty();
+    $("#cr").empty();
+    $("#cr").append("<h1>Niðurstöður</h1>");
+    $("#cr").append("<ul class='list-group' id='nidurstodur'></ul>");
+    //$("#nidurstodur").empty();
+
     var c = parseFloat(document.getElementById('c').value);
   	var a = parseFloat(document.getElementById('a').value);
   	var vinnuskylda = self.vinnuskylda(document.getElementById('golf').value);
@@ -136,7 +138,6 @@
       var klukkustundir = kennslustundir*1.8*18;
 
       if (skuld  + klukkustundir <= 0) {
-        console.log(klukkustundir);
         skuld = skuld + klukkustundir;
         samtala = skuld;
         samtala = samtala.toFixed(1);
@@ -148,9 +149,10 @@
       else {
       	klukkustundir = klukkustundir + skuld;
         klukkustundir = 1.3*klukkustundir/1.8; 
-        samtala = klukkustundir.toFixed(1);
+        //samtala = klukkustundir.toFixed(1);
+        samtala = (samtala < 0) ? klukkustundir.toFixed(1): samtala = parseFloat(samtala) + parseFloat(klukkustundir.toFixed(1));
         klukkustundir =  klukkustundir + Math.abs(skuld);
-        //samtala = (samtala < 0) ? samtala = 0: samtala = samtala + klukkustundir;
+        
         klukkustundir = klukkustundir.toFixed(1);
         skuld = 0;
         var svar = "<li class='list-group-item'>Vinnumat: " + klukkustundir.toString() + " (staða: "+ samtala.toString() +")</li>";
