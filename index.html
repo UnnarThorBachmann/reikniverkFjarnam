@@ -55,6 +55,9 @@
       width: 40%;
       margin: 0px;
     }
+    p {
+      padding-left: 1%;
+    }
   </style>
 </head>
 <body>
@@ -62,6 +65,7 @@
   <h1>
     Reikniverk fjarnáms
   </h1>
+  <p>Miðast við kennara í fullu starfi og uppgjör fjórum sinnum á önn: 1. október (4 vikur), 1. nóvember (4. vikur), 1. desember (6 vikur) og 1. janúar (4. vikur)</p>
   <h2>Upplýsingar um kennara</h2>
   <form id="afangar">
   	<div class="form-group">
@@ -75,7 +79,7 @@
         </select>
     </div>
     <div class="form-group">
-      <label>Yfirvinna úr A-hluta (klst)</label>
+      <label>Vinnustundir úr A-hluta (klst)</label>
       <input type="text" class="form-control" value = "0" id="a">
     </div>
     <div class="form-group">
@@ -148,17 +152,22 @@
     $("#cr").empty();
     $("#cr").append("<h1>Heildaruppgjör</h1>");
     $("#cr").append("<ul class='list-group' id='nidurstodur'></ul>");
-
+    $("#cr").append("<h1>Uppgjör fjórðunga </h1>");
+    //$("#cr").append("<ul class='list-group' id='nidurstodurFjordunga'></ul>");
+    $("#cr").append('<div class="table-responsive"><table class="table" id="nidurstodurFjordunga"></table></div>')
+    $("#nidurstodurFjordunga").append("<tr><th>Dags</th><th><th>Vinnustundir</th><th>Skuld</th><th>Yfirv.</th><th>Frádráttarl.</th></tr>")
     var c = parseFloat(document.getElementById('c').value);
   	var a = parseFloat(document.getElementById('a').value);
   	var vinnuskylda = self.vinnuskylda(document.getElementById('golf').value);
-    var skuld = a-vinnuskylda + c;
-
+    var samtala = a-vinnuskylda+c;
+    var skuld = (samtala < 0)? samtala:0;
+    var skuldVista = (samtala < 0)? Math.abs(skuld):0;
     var svar = "<li class='list-group-item'>Vinnuskylda (klst): " + vinnuskylda.toString() + "</li>";
     $("#nidurstodur").append(svar);
-    svar = "<li class='list-group-item'>Uppgjör dagskóla (klst): " + skuld.toString() + "</li>";
+    svar = "<li class='list-group-item'>Uppgjör dagskóla (klst): " + samtala.toString() + "</li>";
+
     $("#nidurstodur").append(svar);
-    var samtala = 0;
+    var kennslustundirFjordunga = [0,0,0,0];
     for (var i = 1; i <= afangar; i++) {
       var f1 = parseFloat(document.getElementById("n" + i + "a").value);
       var f2 = parseFloat(document.getElementById("n" + i + "b").value);
@@ -167,32 +176,79 @@
       var einingar = parseFloat(document.getElementById("e" + i.toString()).value);
       var fjoldi = 4*f1/18+ 4*f2/18+6*f3/18+4*f4/18;
       var kennslustundir = parseFloat(1) + ((2*einingar)-1)*fjoldi/parseFloat(39);
+      kennslustundirFjordunga[0] += (parseFloat(1) + ((2*einingar)-1)*f1/parseFloat(39))*4;
+      kennslustundirFjordunga[1] += (parseFloat(1) + ((2*einingar)-1)*f2/parseFloat(39))*4;
+      kennslustundirFjordunga[2] += (parseFloat(1) + ((2*einingar)-1)*f3/parseFloat(39))*6;
+      kennslustundirFjordunga[3] += (parseFloat(1) + ((2*einingar)-1)*f4/parseFloat(39))*4;
+      
       var klukkustundir = kennslustundir*1.8*18;
-
       if (skuld  + klukkustundir <= 0) {
         skuld = skuld + klukkustundir;
         samtala = skuld;
-        samtala = samtala.toFixed(1);
+        //samtala = samtala.toFixed(1);
         klukkustundir = klukkustundir.toFixed(1);
 
-        var svar = "<li class='list-group-item'>Vinnumat áfanga "+i +": " + klukkustundir.toString() + " (staða: "+ samtala.toString() +")</li>";
+        var svar = "<li class='list-group-item'>Vinnumat áfanga "+i +": " + klukkustundir + " (staða: "+ samtala.toFixed(1) +")</li>";
         $("#nidurstodur").append(svar);
       }
       else {
       	klukkustundir = klukkustundir + skuld;
         klukkustundir = 1.3*klukkustundir/1.8; 
-        //samtala = klukkustundir.toFixed(1);
-        samtala = (samtala < 0) ? klukkustundir.toFixed(1): samtala = parseFloat(samtala) + parseFloat(klukkustundir.toFixed(1));
-        klukkustundir =  klukkustundir + Math.abs(skuld);
+        if (samtala < 0) {
+
+          klukkustundir = klukkustundir -samtala;
+          samtala = klukkustundir + samtala;
+        }
+        else {
+          samtala = samtala + klukkustundir;
+        }
         
-        klukkustundir = klukkustundir.toFixed(1);
         skuld = 0;
-        var svar = "<li class='list-group-item'>Vinnumat: " + klukkustundir.toString() + " (staða: "+ samtala.toString() +")</li>";
+        var svar = "<li class='list-group-item'>Vinnumat: " + klukkustundir.toFixed(1) + " (staða: "+ samtala.toFixed(1) +")</li>";
         $("#nidurstodur").append(svar);
+
       }
-      
-    }
-  },self);
+    }// end of for loop i.
+    var skuldirFjordunga = [4*skuldVista/18,4*skuldVista/18,6*skuldVista/18,4*skuldVista/18];
+    console.log(skuldirFjordunga);
+    var heildarYfirvinna = 0;
+    var heitiFjordunga=["1. okt.", "1. nóv.", "1. des.", "1. jan."];
+    var heildarSkuldGreidsla = 0;
+    var skuldastada = skuld;
+    var fradrattarlidir = 0;
+    for (var j = 0; j < 4; j++) {
+      var vinnustundirDagskola = 1.8*kennslustundirFjordunga[j];
+      var eftirstodvar = vinnustundirDagskola - skuldirFjordunga[j];
+        if (eftirstodvar > 0){
+          var fradrattarlidur = 0;
+          var yfirvinna = 1.3*eftirstodvar/1.8;
+          var vinnustundir = yfirvinna + Math.abs(skuldirFjordunga[j]);
+          $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundir.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+yfirvinna.toFixed(1)+"</td><td>"+ fradrattarlidur.toFixed(1) +"</td></tr>");
+        }
+        else {
+          if (heildarYfirvinna <= 0) {
+            var fradrattarlidur = 0;
+
+            $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundirDagskola.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+0+"</td><td>"+ fradrattarlidur.toFixed(1) +"</td></tr>");
+              var yfirfaersla = skuldirFjordunga[j]-vinnustundirDagskola;
+              if (j != 3) {
+               yfirfaersla = yfirfaersla/(3-j);
+               for (var k = j+1; k<4; k++) {
+                skuldirFjordunga[k] += yfirfaersla
+               }
+              }
+              else {
+                var lokaskuld = yfirfaersla;
+              }
+
+          }
+          else {
+            //To do
+          }
+
+        }
+    }// end of for loop j
+  },self);// end of event handler
   var button1 = document.getElementById('add');
   button1.addEventListener('click',function() {
   	afangar += 1;
