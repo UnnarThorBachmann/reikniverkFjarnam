@@ -18,7 +18,7 @@
       width: 100%;
     }
     .form-group {
-      margin-left: 10px;
+      margin-left: 5px;
     }
     .thumbnail {
       width: 100%;
@@ -39,7 +39,21 @@
       width: 30%;
     }
     input {
-      margin-left: 10px;
+      margin: 0px;
+    }
+    .thumbnail .form-group {
+      display: inline-block;
+      width: 18%;
+      margin: 0px;
+    }
+    .thumbnail .einingaform{
+      display: inline-block;
+      width: 22%;
+      margin: 0px;
+    }
+    .thumbnail .form-control {
+      width: 40%;
+      margin: 0px;
     }
   </style>
 </head>
@@ -48,6 +62,7 @@
   <h1>
     Reikniverk fjarnáms
   </h1>
+  <h2>Upplýsingar um kennara</h2>
   <form id="afangar">
   	<div class="form-group">
         <label class="medium" for="golf">Aldur</span></label>
@@ -68,14 +83,27 @@
       <input type="text" class="form-control" value="0" id="c">
     </div>
   </form>
+  <h2>Fjarnámsáfangar</h2>
       <div class="containerThumbs" id="ct">
       <div class="thumbnail">
       	<form class="form-inline">
         <div class="form-group">
-          <label>Fjöldi</label>
-          <input type="text" class="form-control nemendafjoldi" value="0" id="n1">
+          <label>Fj. 1</label>
+          <input type="text" class="form-control nemendafjoldi" value="0" id="n1a">
         </div>
         <div class="form-group">
+          <label>Fj. 2</label>
+          <input type="text" class="form-control nemendafjoldi" value="0" id="n1b">
+        </div>
+        <div class="form-group">
+          <label>Fj. 3</label>
+          <input type="text" class="form-control nemendafjoldi" value="0" id="n1c">
+        </div>
+        <div class="form-group">
+          <label>Fj. 4</label>
+          <input type="text" class="form-control nemendafjoldi" value="0" id="n1d">
+        </div>
+        <div class="form-group einingaform">
           <label>Einingar</label>
           <input type="text" class="form-control einingar" value="3" id="e1">
         </div>
@@ -93,6 +121,7 @@
 
 </div>
 <script>
+  var fjarnamsAfangiTemplate = '<form class="form-inline"><div class="form-group"><label>Fj. 1</label><input type="text" class="form-control nemendafjoldi" value="0" id="n<%=fjoldi%>a"></div><div class="form-group"><label>Fj. 2</label><input type="text" class="form-control nemendafjoldi" value="0" id="n<%=fjoldi%>b"></div><div class="form-group"><label>Fj. 3</label><input type="text" class="form-control nemendafjoldi" value="0" id="n<%=fjoldi%>c"></div><div class="form-group"><label>Fj. 4</label><input type="text" class="form-control nemendafjoldi" value="0" id="n<%=fjoldi%>d"></div><div class="form-group einingaform"><label>Einingar</label><input type="text" class="form-control einingar" value="3" id="e<%=fjoldi%>"></div></form>';
   var vinnuskylda =  function(c) {
    var golf = 0;
    if (document.getElementById('golf').value === '30 ára-' ) {
@@ -117,9 +146,8 @@
   var button2 = document.getElementById('calculate');
   button2.addEventListener('click',function() {
     $("#cr").empty();
-    $("#cr").append("<h1>Niðurstöður</h1>");
+    $("#cr").append("<h1>Heildaruppgjör</h1>");
     $("#cr").append("<ul class='list-group' id='nidurstodur'></ul>");
-    //$("#nidurstodur").empty();
 
     var c = parseFloat(document.getElementById('c').value);
   	var a = parseFloat(document.getElementById('a').value);
@@ -132,8 +160,12 @@
     $("#nidurstodur").append(svar);
     var samtala = 0;
     for (var i = 1; i <= afangar; i++) {
-      var fjoldi = parseFloat(document.getElementById("n" + i.toString()).value);
+      var f1 = parseFloat(document.getElementById("n" + i + "a").value);
+      var f2 = parseFloat(document.getElementById("n" + i + "b").value);
+      var f3 = parseFloat(document.getElementById("n" + i + 'c').value);
+      var f4 = parseFloat(document.getElementById("n" + i+ 'd').value);
       var einingar = parseFloat(document.getElementById("e" + i.toString()).value);
+      var fjoldi = 4*f1/18+ 4*f2/18+6*f3/18+4*f4/18;
       var kennslustundir = parseFloat(1) + ((2*einingar)-1)*fjoldi/parseFloat(39);
       var klukkustundir = kennslustundir*1.8*18;
 
@@ -143,7 +175,7 @@
         samtala = samtala.toFixed(1);
         klukkustundir = klukkustundir.toFixed(1);
 
-        var svar = "<li class='list-group-item'>Vinnumat: " + klukkustundir.toString() + " (staða: "+ samtala.toString() +")</li>";
+        var svar = "<li class='list-group-item'>Vinnumat áfanga "+i +": " + klukkustundir.toString() + " (staða: "+ samtala.toString() +")</li>";
         $("#nidurstodur").append(svar);
       }
       else {
@@ -164,14 +196,15 @@
   var button1 = document.getElementById('add');
   button1.addEventListener('click',function() {
   	afangar += 1;
-    var nyrAfangi = "<div class='thumbnail'><form class='form-inline'><div class='form-group'><label>Fjöldi</label><input type='text' class='form-control nemendafjoldi' value='0' id=";
-    nyrAfangi += "n" + afangar.toString();
-    nyrAfangi += "></div><div class='form-group'><label>Einingar</label><input type='text' class='form-control einingar' value='3' id="
-    nyrAfangi += "e" + afangar.toString();
-    nyrAfangi += "></div></form></div>";
-    $("#ct").append(nyrAfangi);
+    var template = _.template(fjarnamsAfangiTemplate);
+    var thumbnailDiv = document.createElement('div');
+    thumbnailDiv.setAttribute('class','thumbnail');
+    thumbnailDiv.innerHTML = template({fjoldi: afangar});
+    $("#ct").append(thumbnailDiv);
 
 	});
 </script>
+<script src="js/underscore-min.js"></script>
+
 </body>
 
