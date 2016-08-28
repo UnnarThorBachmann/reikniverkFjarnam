@@ -155,7 +155,8 @@
     $("#cr").append("<h1>Uppgjör fjórðunga </h1>");
     //$("#cr").append("<ul class='list-group' id='nidurstodurFjordunga'></ul>");
     $("#cr").append('<div class="table-responsive"><table class="table" id="nidurstodurFjordunga"></table></div>')
-    $("#nidurstodurFjordunga").append("<tr><th>Dags</th><th><th>Vinnustundir</th><th>Skuld</th><th>Yfirv.</th><th>Frádráttarl.</th></tr>")
+    $("#nidurstodurFjordunga").append("<tr><th>Dags</th><th><th>Dagvinnust.</th><th>Skuld</th><th>Yfirv.</th><th>Ógr. skuld</th></tr>")
+    $("#nidurstodurFjordunga").append("<tr><th></th><th><th>dst</th><th>dst</th><th>yst</th><th>dst</th></tr>")
     var c = parseFloat(document.getElementById('c').value);
   	var a = parseFloat(document.getElementById('a').value);
   	var vinnuskylda = self.vinnuskylda(document.getElementById('golf').value);
@@ -220,17 +221,17 @@
       var vinnustundirDagskola = 1.8*kennslustundirFjordunga[j];
       var eftirstodvar = vinnustundirDagskola - skuldirFjordunga[j];
         if (eftirstodvar > 0){
-          var fradrattarlidur = 0;
           var yfirvinna = 1.3*eftirstodvar/1.8;
           var vinnustundir = yfirvinna + Math.abs(skuldirFjordunga[j]);
-          $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundirDagskola.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+yfirvinna.toFixed(1)+"</td><td>"+ fradrattarlidur.toFixed(1) +"</td></tr>");
+          var uppgjor = skuldirFjordunga[j] -vinnustundirDagskola+1.8*yfirvinna/1.3;
+          $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundirDagskola.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+yfirvinna.toFixed(1)+"</td><td>"+ uppgjor.toFixed(1) +"</td></tr>");
           heildarYfirvinna += yfirvinna;
         }
         else {
           if (heildarYfirvinna <= 0) {
             var fradrattarlidur = 0;
-
-            $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundirDagskola.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+0+"</td><td>"+ fradrattarlidur.toFixed(1) +"</td></tr>");
+            var uppgjor = skuldirFjordunga[j] -vinnustundirDagskola-1.8*fradrattarlidur/1.3;
+            $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundirDagskola.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+(-1*fradrattarlidur).toFixed(1)+"</td><td>"+ uppgjor.toFixed(1) +"</td></tr>");
               var yfirfaersla = skuldirFjordunga[j]-vinnustundirDagskola;
               if (j != 3) {
                yfirfaersla = yfirfaersla/(3-j);
@@ -262,8 +263,8 @@
                 var lokaskuld = yfirfaersla;
               }
             }
-            console.log('her');
-            $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundirDagskola.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+0+"</td><td>"+ fradrattarlidur.toFixed(1) +"</td></tr>");
+            var uppgjor = skuldirFjordunga[j] -vinnustundirDagskola-1.8*fradrattarlidur/1.3;
+            $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundirDagskola.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+ (-1*fradrattarlidur).toFixed(1)+"</td><td>"+ uppgjor.toFixed(1) +"</td></tr>");
           }
 
         }
