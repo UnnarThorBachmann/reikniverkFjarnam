@@ -145,6 +145,40 @@
    }
    return golf;
   };
+
+var vinnuskylda2 = function(klstChluti,vinnuskyldaTexti) {
+  var vinnuskylda = 0;
+   if (vinnuskyldaTexti === '30 ára-' ) {
+      vinnuskylda = 720;
+   }
+   else if (vinnuskyldaTexti === '30-37 ára') {
+     vinnuskylda = 708;
+   }
+   else if (vinnuskyldaTexti === '38-54 ára') {
+    vinnuskylda = 696;
+   }
+   else if (vinnuskyldaTexti === '55-59 ára') {
+    vinnuskylda = 667;
+   }
+   else {
+    vinnuskylda = 551;
+   }
+  if (vinnuskylda > 667) {
+    return parseFloat(vinnuskylda);
+  }
+  else {
+    var h = parseFloat(klstChluti)/parseFloat(696);
+    if (h >= 1) {
+        return parseFloat(696);
+    }
+    else if (vinnuskylda === 667) {
+        return h*parseFloat(696) + (1-h)*parseFloat(667); 
+    }
+    else {
+       return h*parseFloat(696) + (1-h)*parseFloat(551);  
+    }
+  }
+};
   var afangar = 1;
   self = this;
   var button2 = document.getElementById('calculate');
@@ -155,17 +189,17 @@
     $("#cr").append("<h1>Uppgjör fjórðunga </h1>");
     //$("#cr").append("<ul class='list-group' id='nidurstodurFjordunga'></ul>");
     $("#cr").append('<div class="table-responsive"><table class="table" id="nidurstodurFjordunga"></table></div>')
-    $("#nidurstodurFjordunga").append("<tr><th>Dags</th><th><th>Dagvinnust.</th><th>Skuld</th><th>Yfirv.</th><th>Ógr. skuld</th></tr>")
+    $("#nidurstodurFjordunga").append("<tr><th>Dags</th><th><th>Dagv. nem.</th><th>Skuld</th><th>Yfirv.</th><th>Ógr. skuld</th></tr>")
     $("#nidurstodurFjordunga").append("<tr><th></th><th><th>dst</th><th>dst</th><th>yst</th><th>dst</th></tr>")
     var c = parseFloat(document.getElementById('c').value);
   	var a = parseFloat(document.getElementById('a').value);
-  	var vinnuskylda = self.vinnuskylda(document.getElementById('golf').value);
+  	var vinnuskylda = self.vinnuskylda2(c,document.getElementById('golf').value);
     var samtala = a-vinnuskylda+c;
     var skuld = (samtala < 0)? samtala:0;
     var skuldVista = (samtala < 0)? Math.abs(skuld):0;
-    var svar = "<li class='list-group-item'>Vinnuskylda (klst): " + vinnuskylda.toString() + "</li>";
+    var svar = "<li class='list-group-item'>Vinnuskylda (klst): " + vinnuskylda.toFixed(1) + "</li>";
     $("#nidurstodur").append(svar);
-    svar = "<li class='list-group-item'>Uppgjör dagskóla (klst): " + samtala.toString() + "</li>";
+    svar = "<li class='list-group-item'>Uppgjör dagskóla (klst): " + samtala.toFixed(1) + "</li>";
 
     $("#nidurstodur").append(svar);
     var kennslustundirFjordunga = [0,0,0,0];
@@ -220,7 +254,7 @@
     for (var j = 0; j < 4; j++) {
       var vinnustundirDagskola = 1.8*kennslustundirFjordunga[j];
       var eftirstodvar = vinnustundirDagskola - skuldirFjordunga[j];
-        if (eftirstodvar > 0){
+      if (eftirstodvar > 0) {
           var yfirvinna = 1.3*eftirstodvar/1.8;
           var vinnustundir = yfirvinna + Math.abs(skuldirFjordunga[j]);
           var uppgjor = skuldirFjordunga[j] -vinnustundirDagskola+1.8*yfirvinna/1.3;
@@ -228,45 +262,19 @@
           heildarYfirvinna += yfirvinna;
         }
         else {
-          if (heildarYfirvinna <= 0) {
             var fradrattarlidur = 0;
-            var uppgjor = skuldirFjordunga[j] -vinnustundirDagskola-1.8*fradrattarlidur/1.3;
+            var uppgjor = skuldirFjordunga[j] -vinnustundirDagskola;
             $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundirDagskola.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+(-1*fradrattarlidur).toFixed(1)+"</td><td>"+ uppgjor.toFixed(1) +"</td></tr>");
               var yfirfaersla = skuldirFjordunga[j]-vinnustundirDagskola;
               if (j != 3) {
                yfirfaersla = yfirfaersla/(3-j);
-               for (var k = j+1; k<4; k++) {
-                skuldirFjordunga[k] += yfirfaersla
-               }
+                 for (var k = j+1; k<4; k++) {
+                   skuldirFjordunga[k] += yfirfaersla
+                 }
               }
               else {
                 var lokaskuld = yfirfaersla;
               }
-          }
-          else {
-            if (1.3*Math.abs(eftirstodvar)/1.8 < heildarYfirvinna){
-              var fradrattarlidur = 1.3*Math.abs(eftirstodvar)/1.8;
-              heildarYfirvinna -= 1.3*Math.abs(eftirstodvar)/1.8;
-            }
-            else {
-              var fradrattarlidur = heildarYfirvinna;
-              eftirstodvar += 1.8*(heildarYfirvinna)/1.3;
-              heildarYifrvinna = 0;
-              var yfirfaersla = Math.abs(eftirstodvar);
-              if (j != 3) {
-               yfirfaersla = yfirfaersla/(3-j);
-               for (var k = j+1; k<4; k++) {
-                skuldirFjordunga[k] += yfirfaersla
-               }
-              }
-              else {
-                var lokaskuld = yfirfaersla;
-              }
-            }
-            var uppgjor = skuldirFjordunga[j] -vinnustundirDagskola-1.8*fradrattarlidur/1.3;
-            $("#nidurstodurFjordunga").append("<tr><td>" + heitiFjordunga[j] +"</td><td><td>"+ vinnustundirDagskola.toFixed(1)+"</td><td>"+skuldirFjordunga[j].toFixed(1)+"</td><td>"+ (-1*fradrattarlidur).toFixed(1)+"</td><td>"+ uppgjor.toFixed(1) +"</td></tr>");
-          }
-
         }
     }// end of for loop j
   },self);// end of event handler
