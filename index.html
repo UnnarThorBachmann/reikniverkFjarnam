@@ -251,6 +251,7 @@ var vinnuskylda2 = function(klstChluti,vinnuskyldaTexti) {
     var heildarSkuldGreidsla = 0;
     var skuldastada = skuld;
     var fradrattarlidir = 0;
+    var lokaskuld = 0;
     for (var j = 0; j < 4; j++) {
       var vinnustundirDagskola = 1.8*kennslustundirFjordunga[j];
       var eftirstodvar = vinnustundirDagskola - skuldirFjordunga[j];
@@ -273,10 +274,21 @@ var vinnuskylda2 = function(klstChluti,vinnuskyldaTexti) {
                  }
               }
               else {
-                var lokaskuld = yfirfaersla;
+                lokaskuld = yfirfaersla;
               }
         }
     }// end of for loop j
+    $("#cr").append("<p>Yfirvinnustundir greiddar: "+ heildarYfirvinna.toFixed(1)+" yst, Óuppgerð skuld: "+ lokaskuld.toFixed(1)+" dst</p>");
+    var mismunur = 1.8*heildarYfirvinna/1.3 - lokaskuld;
+
+    if (mismunur < 0) {
+      $("#cr").append("<p>Mismunur yfirvinnu og skuldar: 1.8*"+heildarYfirvinna.toFixed(1) +"/1.3-" +lokaskuld.toFixed(1)+" = "+mismunur.toFixed(1)+" dst</p>");
+    }
+    else {
+      mismunur = 1.3*mismunur/1.8;
+      $("#cr").append("<p>Mismunur yfirvinnu og skuldar: "+ mismunur.toFixed(1)+" yst.</p>");
+    }
+    
   },self);// end of event handler
   var button1 = document.getElementById('add');
   button1.addEventListener('click',function() {
